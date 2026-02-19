@@ -28,10 +28,7 @@
     },
     "clinical_recommendation": {
       "action": "Reduced analgesic effect expected. Consider alternative opioid or careful dose titration.",
-      "alternative_drugs": [
-        "Morphine",
-        "Oxycodone"
-      ],
+      "alternative_drugs": ["Morphine", "Oxycodone"],
       "dose_adjustment": "Consider dose increase with caution or switch to non-CYP2D6-metabolised opioid."
     },
     "llm_generated_explanation": {
@@ -75,10 +72,7 @@
     },
     "clinical_recommendation": {
       "action": "Clopidogrel will not be converted to active thiosuflate metabolite. Use prasugrel or ticagrelor instead.",
-      "alternative_drugs": [
-        "Prasugrel",
-        "Ticagrelor"
-      ]
+      "alternative_drugs": ["Prasugrel", "Ticagrelor"]
     },
     "llm_generated_explanation": {
       "summary": "This patient's CYP2C19 genotype (*2/*2) is classified as Poor Metabolizer. Genomic analysis identified the following pharmacogenomic variants: rs4244285. With respect to CLOPIDOGREL, this phenotype predicts predicted drug INEFFECTIVENESS due to pharmacogenomic factors. Clopidogrel will not be converted to active thiosuflate metabolite. Use prasugrel or ticagrelor instead.",

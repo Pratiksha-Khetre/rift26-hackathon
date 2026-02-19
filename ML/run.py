@@ -3,6 +3,8 @@ run.py — PharmaGuard Interactive Terminal
 Just run: python run.py
 """
 
+# rift26-hackathon\ML\run.py
+
 from vcf_parser import parse_vcf, group_variants_by_gene
 from phenotype_mapper import map_phenotypes
 from pgx_rules import assess_drug_risk

@@ -4,6 +4,8 @@ Parses VCF v4.2 files and extracts pharmacogenomic variants
 for target genes: CYP2D6, CYP2C19, CYP2C9, SLCO1B1, TPMT, DPYD
 """
 
+# rift26-hackathon\ML\vcf_parser.py
+
 import re
 import logging
 from pathlib import Path

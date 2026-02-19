@@ -4,6 +4,8 @@ Maps detected variants → star alleles → diplotypes → phenotypes
 following CPIC guidelines.
 """
 
+# rift26-hackathon\ML\phenotype_mapper.py
+
 import logging
 from typing import Optional
 
