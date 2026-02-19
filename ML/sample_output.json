@@ -1,0 +1,279 @@
+[
+  {
+    "patient_id": "PATIENT_001",
+    "drug": "CODEINE",
+    "timestamp": "2026-02-19T08:17:19.681347+00:00",
+    "risk_assessment": {
+      "risk_label": "Adjust Dosage",
+      "confidence_score": 0.8,
+      "severity": "Moderate"
+    },
+    "pharmacogenomic_profile": {
+      "primary_gene": "CYP2D6",
+      "diplotype": "*1/*4",
+      "phenotype": "Intermediate Metabolizer",
+      "detected_variants": [
+        {
+          "rsid": "rs3892097",
+          "gene": "CYP2D6",
+          "chromosome": "chr22",
+          "position": 42522613,
+          "ref": "G",
+          "alt": "A",
+          "genotype": "0/1",
+          "zygosity": "heterozygous",
+          "star_allele": "*4"
+        }
+      ]
+    },
+    "clinical_recommendation": {
+      "action": "Reduced analgesic effect expected. Consider alternative opioid or careful dose titration.",
+      "alternative_drugs": [
+        "Morphine",
+        "Oxycodone"
+      ],
+      "dose_adjustment": "Consider dose increase with caution or switch to non-CYP2D6-metabolised opioid."
+    },
+    "llm_generated_explanation": {
+      "summary": "This patient's CYP2D6 genotype (*1/*4) is classified as Intermediate Metabolizer. Genomic analysis identified the following pharmacogenomic variants: rs3892097. With respect to CODEINE, this phenotype predicts a clinically significant pharmacogenomic interaction requiring dose modification. Reduced analgesic effect expected. Consider alternative opioid or careful dose titration.",
+      "mechanism": "One or both CYP2D6 alleles carry decreased-function variants (e.g., *10, *41, *17), yielding a total activity score between 0.25 and 1.25. Enzyme capacity is reduced but not absent. This results in slower-than-normal drug metabolism, with drug exposure elevated 1.5\u20132\u00d7 compared to normal metabolizers. Clinical effects are intermediate \u2014 prodrug activation is reduced (lower efficacy) while parent compound clearance is delayed (mild toxicity risk). Dose adjustments or alternative medications are warranted for high-risk drugs.\n\nDosing Implication for CODEINE: Codeine efficacy will be reduced. Consider using 1.5\u00d7 the normal dose cautiously, or preferably switch to morphine or oxycodone at standard doses.",
+      "guideline_reference": "CPIC guideline for codeine and CYP2D6 (2014, updated 2022). Full prescribing guidance is available at cpicpgx.org and the PharmGKB database. Clinical Pharmacogenetics Implementation Consortium (CPIC) recommendations are graded A\u2013D based on evidence level; this variant-drug pair carries a strong evidence-based recommendation."
+    },
+    "quality_metrics": {
+      "vcf_parsing_success": true,
+      "total_variants_parsed": 8,
+      "pgx_variants_found": 6,
+      "parse_errors": []
+    }
+  },
+  {
+    "patient_id": "PATIENT_001",
+    "drug": "CLOPIDOGREL",
+    "timestamp": "2026-02-19T08:17:19.685506+00:00",
+    "risk_assessment": {
+      "risk_label": "Ineffective",
+      "confidence_score": 0.95,
+      "severity": "High"
+    },
+    "pharmacogenomic_profile": {
+      "primary_gene": "CYP2C19",
+      "diplotype": "*2/*2",
+      "phenotype": "Poor Metabolizer",
+      "detected_variants": [
+        {
+          "rsid": "rs4244285",
+          "gene": "CYP2C19",
+          "chromosome": "chr10",
+          "position": 94781858,
+          "ref": "G",
+          "alt": "A",
+          "genotype": "1/1",
+          "zygosity": "homozygous_alt",
+          "star_allele": "*2"
+        }
+      ]
+    },
+    "clinical_recommendation": {
+      "action": "Clopidogrel will not be converted to active thiosuflate metabolite. Use prasugrel or ticagrelor instead.",
+      "alternative_drugs": [
+        "Prasugrel",
+        "Ticagrelor"
+      ]
+    },
+    "llm_generated_explanation": {
+      "summary": "This patient's CYP2C19 genotype (*2/*2) is classified as Poor Metabolizer. Genomic analysis identified the following pharmacogenomic variants: rs4244285. With respect to CLOPIDOGREL, this phenotype predicts predicted drug INEFFECTIVENESS due to pharmacogenomic factors. Clopidogrel will not be converted to active thiosuflate metabolite. Use prasugrel or ticagrelor instead.",
+      "mechanism": "CYP2C19 is expressed in the liver and intestine and mediates the metabolism of proton pump inhibitors, clopidogrel, and several antidepressants. Homozygous loss-of-function variants (*2/*2, *2/*3) eliminate functional enzyme. For clopidogrel, a prodrug requiring two-step CYP2C19-mediated bioactivation, this results in < 10% of normal active metabolite generation, rendering the antiplatelet effect effectively absent and leaving the patient at high risk of thrombotic events. For citalopram and other direct-acting CYP2C19 substrates, impaired clearance leads to drug accumulation and elevated risk of adverse effects including QTc prolongation.\n\nDosing Implication for CLOPIDOGREL: Clopidogrel will not achieve adequate platelet inhibition. Prescribe prasugrel 10 mg/day or ticagrelor 90 mg twice daily. Note prasugrel is contraindicated in patients with prior TIA/stroke.",
+      "guideline_reference": "CPIC guideline for clopidogrel and CYP2C19 (2013, updated 2022). Full prescribing guidance is available at cpicpgx.org and the PharmGKB database. Clinical Pharmacogenetics Implementation Consortium (CPIC) recommendations are graded A\u2013D based on evidence level; this variant-drug pair carries a strong evidence-based recommendation."
+    },
+    "quality_metrics": {
+      "vcf_parsing_success": true,
+      "total_variants_parsed": 8,
+      "pgx_variants_found": 6,
+      "parse_errors": []
+    }
+  },
+  {
+    "patient_id": "PATIENT_001",
+    "drug": "WARFARIN",
+    "timestamp": "2026-02-19T08:17:19.687521+00:00",
+    "risk_assessment": {
+      "risk_label": "Adjust Dosage",
+      "confidence_score": 0.87,
+      "severity": "Moderate"
+    },
+    "pharmacogenomic_profile": {
+      "primary_gene": "CYP2C9",
+      "diplotype": "*1/*2",
+      "phenotype": "Intermediate Metabolizer",
+      "detected_variants": [
+        {
+          "rsid": "rs1799853",
+          "gene": "CYP2C9",
+          "chromosome": "chr10",
+          "position": 94942290,
+          "ref": "C",
+          "alt": "T",
+          "genotype": "0/1",
+          "zygosity": "heterozygous",
+          "star_allele": "*2"
+        }
+      ]
+    },
+    "clinical_recommendation": {
+      "action": "Reduced warfarin clearance. Initiate at 75% of standard dose with close INR monitoring.",
+      "alternative_drugs": [],
+      "dose_adjustment": "Reduce initial dose by 25%. Increase INR monitoring frequency.",
+      "monitoring": "Weekly INR for first month."
+    },
+    "llm_generated_explanation": {
+      "summary": "This patient's CYP2C9 genotype (*1/*2) is classified as Intermediate Metabolizer. Genomic analysis identified the following pharmacogenomic variants: rs1799853. With respect to WARFARIN, this phenotype predicts a clinically significant pharmacogenomic interaction requiring dose modification. Reduced warfarin clearance. Initiate at 75% of standard dose with close INR monitoring.",
+      "mechanism": "One or both CYP2C9 alleles carry decreased-function variants (*2 or *3), reducing total enzyme activity to 25\u201375% of normal. S-warfarin clearance is partially impaired, requiring a 15\u201335% dose reduction to achieve stable anticoagulation. INR should be monitored more frequently during dose initiation and titration.\n\nDosing Implication for WARFARIN: Initiate warfarin at 75% of the algorithm-predicted dose. Weekly INR monitoring for the first month.",
+      "guideline_reference": "CPIC guideline for warfarin, CYP2C9, VKORC1, CYP4F2 (2017). Full prescribing guidance is available at cpicpgx.org and the PharmGKB database. Clinical Pharmacogenetics Implementation Consortium (CPIC) recommendations are graded A\u2013D based on evidence level; this variant-drug pair carries a strong evidence-based recommendation."
+    },
+    "quality_metrics": {
+      "vcf_parsing_success": true,
+      "total_variants_parsed": 8,
+      "pgx_variants_found": 6,
+      "parse_errors": []
+    }
+  },
+  {
+    "patient_id": "PATIENT_001",
+    "drug": "SIMVASTATIN",
+    "timestamp": "2026-02-19T08:17:19.690073+00:00",
+    "risk_assessment": {
+      "risk_label": "Toxic",
+      "confidence_score": 0.92,
+      "severity": "High"
+    },
+    "pharmacogenomic_profile": {
+      "primary_gene": "SLCO1B1",
+      "diplotype": "*5/*5",
+      "phenotype": "Poor Function High myopathy risk",
+      "detected_variants": [
+        {
+          "rsid": "rs4149056",
+          "gene": "SLCO1B1",
+          "chromosome": "chr12",
+          "position": 21331542,
+          "ref": "T",
+          "alt": "C",
+          "genotype": "1/1",
+          "zygosity": "homozygous_alt",
+          "star_allele": "*5"
+        }
+      ]
+    },
+    "clinical_recommendation": {
+      "action": "High risk of simvastatin-induced myopathy due to reduced hepatic uptake. Use pravastatin or rosuvastatin. If simvastatin must be used, limit dose to 20 mg/day.",
+      "alternative_drugs": [
+        "Pravastatin",
+        "Rosuvastatin",
+        "Atorvastatin (lower risk)"
+      ],
+      "dose_adjustment": "Maximum simvastatin dose 20 mg/day if no alternative available.",
+      "monitoring": "Monitor for muscle pain, weakness, elevated CK."
+    },
+    "llm_generated_explanation": {
+      "summary": "This patient's SLCO1B1 genotype (*5/*5) is classified as Poor Function High myopathy risk. Genomic analysis identified the following pharmacogenomic variants: rs4149056. With respect to SIMVASTATIN, this phenotype predicts a HIGH RISK of drug toxicity. High risk of simvastatin-induced myopathy due to reduced hepatic uptake. Use pravastatin or rosuvastatin. If simvastatin must be used, limit dose to 20 mg/day.",
+      "mechanism": "SLCO1B1 encodes the hepatic organic anion transporter OATP1B1, which mediates uptake of statins from portal blood into hepatocytes. The rs4149056 (c.521T>C, p.Val174Ala) variant in homozygous form (CC genotype, *5/*5) reduces OATP1B1 transport capacity by approximately 70\u201390%, resulting in markedly elevated systemic statin plasma concentrations due to impaired hepatic first-pass extraction. This dramatically increases the risk of statin-induced myopathy (muscle toxicity), including the rare but severe complication of rhabdomyolysis. Simvastatin is most strongly associated with this risk due to its high OATP1B1 dependence and lipophilicity.\n\nDosing Implication for SIMVASTATIN: Simvastatin should be avoided. Use pravastatin 40 mg or rosuvastatin 10\u201320 mg as safer alternatives with minimal SLCO1B1 dependence.",
+      "guideline_reference": "CPIC guideline for statins and SLCO1B1, ABCG2, CYP2C9 (2022). Full prescribing guidance is available at cpicpgx.org and the PharmGKB database. Clinical Pharmacogenetics Implementation Consortium (CPIC) recommendations are graded A\u2013D based on evidence level; this variant-drug pair carries a strong evidence-based recommendation."
+    },
+    "quality_metrics": {
+      "vcf_parsing_success": true,
+      "total_variants_parsed": 8,
+      "pgx_variants_found": 6,
+      "parse_errors": []
+    }
+  },
+  {
+    "patient_id": "PATIENT_001",
+    "drug": "AZATHIOPRINE",
+    "timestamp": "2026-02-19T08:17:19.691069+00:00",
+    "risk_assessment": {
+      "risk_label": "Adjust Dosage",
+      "confidence_score": 0.88,
+      "severity": "Moderate"
+    },
+    "pharmacogenomic_profile": {
+      "primary_gene": "TPMT",
+      "diplotype": "*1/*3C",
+      "phenotype": "Intermediate Metabolizer",
+      "detected_variants": [
+        {
+          "rsid": "rs1142345",
+          "gene": "TPMT",
+          "chromosome": "chr6",
+          "position": 18130918,
+          "ref": "A",
+          "alt": "C",
+          "genotype": "0/1",
+          "zygosity": "heterozygous",
+          "star_allele": "*3C"
+        }
+      ]
+    },
+    "clinical_recommendation": {
+      "action": "Reduced TPMT activity. Start at 50% of standard dose and titrate based on tolerance and CBC.",
+      "alternative_drugs": [],
+      "dose_adjustment": "Reduce initial dose by 30\u201350%.",
+      "monitoring": "CBC every 2 weeks for first 3 months."
+    },
+    "llm_generated_explanation": {
+      "summary": "This patient's TPMT genotype (*1/*3C) is classified as Intermediate Metabolizer. Genomic analysis identified the following pharmacogenomic variants: rs1142345. With respect to AZATHIOPRINE, this phenotype predicts a clinically significant pharmacogenomic interaction requiring dose modification. Reduced TPMT activity. Start at 50% of standard dose and titrate based on tolerance and CBC.",
+      "mechanism": "Heterozygous TPMT variants (e.g., *1/*3A, *1/*3C) reduce TPMT activity to approximately 50% of normal, causing partial accumulation of thioguanine nucleotides. This intermediate phenotype is associated with increased risk of myelosuppression, particularly with concurrent allopurinol or other xanthine oxidase inhibitors. Dose reductions of 30\u201350% and enhanced CBC monitoring are recommended to prevent haematological toxicity.\n\nDosing Implication for AZATHIOPRINE: Start azathioprine at 50% of the standard dose (e.g., 1 mg/kg instead of 2 mg/kg). Increase slowly based on CBC every 2 weeks.",
+      "guideline_reference": "CPIC guideline for thiopurines and TPMT, NUDT15 (2018, updated 2021). Full prescribing guidance is available at cpicpgx.org and the PharmGKB database. Clinical Pharmacogenetics Implementation Consortium (CPIC) recommendations are graded A\u2013D based on evidence level; this variant-drug pair carries a strong evidence-based recommendation."
+    },
+    "quality_metrics": {
+      "vcf_parsing_success": true,
+      "total_variants_parsed": 8,
+      "pgx_variants_found": 6,
+      "parse_errors": []
+    }
+  },
+  {
+    "patient_id": "PATIENT_001",
+    "drug": "FLUOROURACIL",
+    "timestamp": "2026-02-19T08:17:19.691069+00:00",
+    "risk_assessment": {
+      "risk_label": "Adjust Dosage",
+      "confidence_score": 0.9,
+      "severity": "High"
+    },
+    "pharmacogenomic_profile": {
+      "primary_gene": "DPYD",
+      "diplotype": "*1/*2A",
+      "phenotype": "Intermediate Metabolizer",
+      "detected_variants": [
+        {
+          "rsid": "rs3918290",
+          "gene": "DPYD",
+          "chromosome": "chr1",
+          "position": 97915614,
+          "ref": "G",
+          "alt": "A",
+          "genotype": "0/1",
+          "zygosity": "heterozygous",
+          "star_allele": "*2A"
+        }
+      ]
+    },
+    "clinical_recommendation": {
+      "action": "Reduce starting dose by 50%. If well-tolerated after 2 cycles consider dose escalation with close monitoring.",
+      "alternative_drugs": [],
+      "dose_adjustment": "Start at 50% of standard dose.",
+      "monitoring": "CBC, LFTs, and toxicity assessment each cycle."
+    },
+    "llm_generated_explanation": {
+      "summary": "This patient's DPYD genotype (*1/*2A) is classified as Intermediate Metabolizer. Genomic analysis identified the following pharmacogenomic variants: rs3918290. With respect to FLUOROURACIL, this phenotype predicts a clinically significant pharmacogenomic interaction requiring dose modification. Reduce starting dose by 50%. If well-tolerated after 2 cycles consider dose escalation with close monitoring.",
+      "mechanism": "Heterozygous DPYD variants (e.g., *1/*2A, *1/HapB3, *1/*13) reduce DPD activity to approximately 30\u201370% of normal. This partial enzyme deficiency increases fluoropyrimidine exposure and the risk of severe early toxicity. European and CPIC guidelines recommend a 50% dose reduction for all fluoropyrimidine-based regimens in intermediate DPD metabolizers, with dose escalation only if initial cycles are well-tolerated.\n\nDosing Implication for FLUOROURACIL: Reduce 5-FU dose to 50% of protocol dose. For capecitabine, reduce by 50%. Escalate only if cycle 1\u20132 toxicity is acceptable.",
+      "guideline_reference": "CPIC guideline for fluoropyrimidines and DPYD (2017, updated 2022); EMA recommendation. Full prescribing guidance is available at cpicpgx.org and the PharmGKB database. Clinical Pharmacogenetics Implementation Consortium (CPIC) recommendations are graded A\u2013D based on evidence level; this variant-drug pair carries a strong evidence-based recommendation."
+    },
+    "quality_metrics": {
+      "vcf_parsing_success": true,
+      "total_variants_parsed": 8,
+      "pgx_variants_found": 6,
+      "parse_errors": []
+    }
+  }
+]
