@@ -2,6 +2,8 @@
 phenotype_mapper.py — PharmaGuard Diplotype & Phenotype Mapper
 Maps detected variants → star alleles → diplotypes → phenotypes
 following CPIC guidelines.
+
+Supports: CYP2D6, CYP2C19, CYP2C9, SLCO1B1, TPMT, DPYD, HLA-B, HLA-A
 """
 
 # rift26-hackathon\ML\phenotype_mapper.py
@@ -13,40 +15,22 @@ logger = logging.getLogger(__name__)
 
 # ─────────────────────────────────────────────────────────────────────────────
 # ACTIVITY SCORES per star allele (CPIC activity value model)
-# Used for CYP2D6 and CYP2C9 where gene activity scoring applies.
-# 1.0 = fully functional, 0.5 = decreased, 0.0 = non-functional
 # ─────────────────────────────────────────────────────────────────────────────
 ACTIVITY_SCORES = {
-    # CYP2D6
     "CYP2D6": {
-        "*1":   1.0,   # Normal function
-        "*2":   1.0,   # Normal function
-        "*10":  0.25,  # Decreased function
-        "*17":  0.5,   # Decreased function
-        "*29":  0.0,   # No function
-        "*41":  0.5,   # Decreased function
-        "*3":   0.0,   # No function (frameshift)
-        "*4":   0.0,   # No function (splicing defect)
-        "*5":   0.0,   # No function (gene deletion)
-        "*6":   0.0,   # No function (frameshift)
-        "*7":   0.0,   # No function
-        "*8":   0.0,   # No function
-        "xN":   2.0,   # Gene duplication adds +1.0 per extra copy
+        "*1":  1.0, "*2":  1.0, "*10": 0.25, "*17": 0.5,
+        "*29": 0.0, "*41": 0.5, "*3":  0.0,  "*4":  0.0,
+        "*5":  0.0, "*6":  0.0, "*7":  0.0,  "*8":  0.0,
+        "xN":  2.0,
     },
-    # CYP2C9
     "CYP2C9": {
-        "*1":   1.0,
-        "*2":   0.5,
-        "*3":   0.0,
-        "*5":   0.0,
-        "*6":   0.0,
-        "*11":  0.5,
+        "*1": 1.0, "*2": 0.5, "*3": 0.0,
+        "*5": 0.0, "*6": 0.0, "*11": 0.5,
     },
 }
 
 # ─────────────────────────────────────────────────────────────────────────────
-# EXPLICIT DIPLOTYPE → PHENOTYPE LOOKUP TABLES
-# Source: CPIC diplotype-phenotype tables (cpicpgx.org)
+# DIPLOTYPE → PHENOTYPE LOOKUP TABLES
 # ─────────────────────────────────────────────────────────────────────────────
 
 CYP2D6_DIPLOTYPE_PHENOTYPE = {
@@ -86,26 +70,25 @@ CYP2C19_DIPLOTYPE_PHENOTYPE = {
 }
 
 CYP2C9_DIPLOTYPE_PHENOTYPE = {
-    "*1/*1":  "Normal Metabolizer",
-    "*1/*2":  "Intermediate Metabolizer",
-    "*1/*3":  "Intermediate Metabolizer",
-    "*2/*2":  "Intermediate Metabolizer",
-    "*2/*3":  "Poor Metabolizer",
-    "*3/*3":  "Poor Metabolizer",
-    "*1/*5":  "Intermediate Metabolizer",
-    "*1/*6":  "Intermediate Metabolizer",
+    "*1/*1": "Normal Metabolizer",
+    "*1/*2": "Intermediate Metabolizer",
+    "*1/*3": "Intermediate Metabolizer",
+    "*2/*2": "Intermediate Metabolizer",
+    "*2/*3": "Poor Metabolizer",
+    "*3/*3": "Poor Metabolizer",
+    "*1/*5": "Intermediate Metabolizer",
+    "*1/*6": "Intermediate Metabolizer",
 }
 
 SLCO1B1_DIPLOTYPE_PHENOTYPE = {
-    # SLCO1B1 uses a function-based classification for statin myopathy risk
-    "*1a/*1a": ("Normal Function",        "Normal myopathy risk"),
-    "*1a/*1b": ("Normal Function",        "Normal myopathy risk"),
-    "*1b/*1b": ("Normal Function",        "Normal myopathy risk"),
-    "*1a/*5":  ("Decreased Function",     "Intermediate myopathy risk"),
-    "*1b/*5":  ("Decreased Function",     "Intermediate myopathy risk"),
-    "*5/*5":   ("Poor Function",          "High myopathy risk"),
-    "*5/*15":  ("Poor Function",          "High myopathy risk"),
-    "*15/*15": ("Poor Function",          "High myopathy risk"),
+    "*1a/*1a": ("Normal Function",    "Normal myopathy risk"),
+    "*1a/*1b": ("Normal Function",    "Normal myopathy risk"),
+    "*1b/*1b": ("Normal Function",    "Normal myopathy risk"),
+    "*1a/*5":  ("Decreased Function", "Intermediate myopathy risk"),
+    "*1b/*5":  ("Decreased Function", "Intermediate myopathy risk"),
+    "*5/*5":   ("Poor Function",      "High myopathy risk"),
+    "*5/*15":  ("Poor Function",      "High myopathy risk"),
+    "*15/*15": ("Poor Function",      "High myopathy risk"),
 }
 
 TPMT_DIPLOTYPE_PHENOTYPE = {
@@ -123,17 +106,16 @@ TPMT_DIPLOTYPE_PHENOTYPE = {
 }
 
 DPYD_DIPLOTYPE_PHENOTYPE = {
-    "*1/*1":    "Normal Metabolizer",
-    "*1/*2A":   "Intermediate Metabolizer",
-    "*1/*13":   "Intermediate Metabolizer",
-    "*2A/*2A":  "Poor Metabolizer",
-    "*2A/*13":  "Poor Metabolizer",
-    "*13/*13":  "Poor Metabolizer",
-    "*1/HapB3": "Intermediate Metabolizer",
+    "*1/*1":       "Normal Metabolizer",
+    "*1/*2A":      "Intermediate Metabolizer",
+    "*1/*13":      "Intermediate Metabolizer",
+    "*2A/*2A":     "Poor Metabolizer",
+    "*2A/*13":     "Poor Metabolizer",
+    "*13/*13":     "Poor Metabolizer",
+    "*1/HapB3":    "Intermediate Metabolizer",
     "HapB3/HapB3": "Intermediate Metabolizer",
 }
 
-# Map each gene to its diplotype-phenotype table
 GENE_PHENOTYPE_TABLES = {
     "CYP2D6":  CYP2D6_DIPLOTYPE_PHENOTYPE,
     "CYP2C19": CYP2C19_DIPLOTYPE_PHENOTYPE,
@@ -142,38 +124,39 @@ GENE_PHENOTYPE_TABLES = {
     "DPYD":    DPYD_DIPLOTYPE_PHENOTYPE,
 }
 
-# SLCO1B1 rs4149056 genotype → phenotype (the key clinical SNP)
 SLCO1B1_RS4149056_PHENOTYPE = {
-    "TT":  ("Normal Function",     "Normal myopathy risk",       "*1a/*1a"),
-    "TC":  ("Decreased Function",  "Intermediate myopathy risk", "*1a/*5"),
-    "CT":  ("Decreased Function",  "Intermediate myopathy risk", "*1a/*5"),
-    "CC":  ("Poor Function",       "High myopathy risk",         "*5/*5"),
+    "TT": ("Normal Function",    "Normal myopathy risk",       "*1a/*1a"),
+    "TC": ("Decreased Function", "Intermediate myopathy risk", "*1a/*5"),
+    "CT": ("Decreased Function", "Intermediate myopathy risk", "*1a/*5"),
+    "CC": ("Poor Function",      "High myopathy risk",         "*5/*5"),
 }
 
+# ─────────────────────────────────────────────────────────────────────────────
+# HLA-B tag SNPs
+# rs2395029 / rs9264942  → HLA-B*57:01  (abacavir hypersensitivity)
+# rs3909184 / rs2844682  → HLA-B*15:02  (carbamazepine SJS/TEN)
+# ─────────────────────────────────────────────────────────────────────────────
+HLA_B_5701_RSIDS = {"rs2395029", "rs9264942"}
+HLA_B_1502_RSIDS = {"rs3909184", "rs2844682"}
+
+# HLA-A tag SNPs
+# rs1061235 → HLA-A*31:01 (carbamazepine DRESS)
+HLA_A_3101_RSIDS = {"rs1061235"}
+
+
+# ─────────────────────────────────────────────────────────────────────────────
+# Internal helpers
+# ─────────────────────────────────────────────────────────────────────────────
 
 def _star_allele_from_variant(variant: dict) -> str:
-    """Return the star allele for a single variant record."""
     sa = variant.get("star_allele", "unknown")
     return sa if sa and sa != "unknown" else "*?"
 
 
 def _infer_diplotype_from_variants(gene: str, variants: list[dict]) -> tuple[str, str]:
-    """
-    Infer the most likely diplotype and phenotype from a list of
-    variants for a single gene.
-
-    Returns (diplotype_str, phenotype_str).
-    Uses heuristic:
-      - No variants detected  → assume *1/*1 (wildtype)
-      - One het variant       → *1/variant_allele
-      - One hom variant       → variant_allele/variant_allele
-      - Multiple variants     → report observed alleles
-    """
     if not variants:
-        # No variants = wildtype assumption
         return "*1/*1", _phenotype_lookup(gene, "*1/*1")
 
-    # Collect non-wildtype alleles weighted by zygosity
     alleles = []
     for v in variants:
         sa = _star_allele_from_variant(v)
@@ -183,13 +166,11 @@ def _infer_diplotype_from_variants(gene: str, variants: list[dict]) -> tuple[str
         else:
             alleles.append(sa)
 
-    # Deduplicate but preserve count
     if len(alleles) == 0:
         diplotype = "*1/*1"
     elif len(alleles) == 1:
         diplotype = f"*1/{alleles[0]}"
     else:
-        # Sort for canonical lookup (lower allele first)
         sorted_alleles = sorted(alleles[:2])
         diplotype = f"{sorted_alleles[0]}/{sorted_alleles[1]}"
 
@@ -198,8 +179,6 @@ def _infer_diplotype_from_variants(gene: str, variants: list[dict]) -> tuple[str
 
 
 def _phenotype_lookup(gene: str, diplotype: str) -> str:
-    """Look up phenotype from diplotype in the appropriate table."""
-    # Normalize diplotype for lookup (try both orderings)
     parts = diplotype.split("/")
     if len(parts) == 2:
         canonical   = f"{parts[0]}/{parts[1]}"
@@ -208,48 +187,33 @@ def _phenotype_lookup(gene: str, diplotype: str) -> str:
         canonical = alternative = diplotype
 
     if gene == "SLCO1B1":
-        val = SLCO1B1_DIPLOTYPE_PHENOTYPE.get(canonical) \
-           or SLCO1B1_DIPLOTYPE_PHENOTYPE.get(alternative)
-        if val:
-            return val[0]  # return function label
-        return "Indeterminate"
+        val = (SLCO1B1_DIPLOTYPE_PHENOTYPE.get(canonical) or
+               SLCO1B1_DIPLOTYPE_PHENOTYPE.get(alternative))
+        return val[0] if val else "Indeterminate"
 
     table = GENE_PHENOTYPE_TABLES.get(gene, {})
     phenotype = table.get(canonical) or table.get(alternative)
     if phenotype:
         return phenotype
 
-    # Fallback: activity-score model for CYP2D6 / CYP2C9
+    # Activity-score fallback for CYP2D6 / CYP2C9
     if gene in ACTIVITY_SCORES and len(parts) == 2:
         scores = ACTIVITY_SCORES[gene]
-        a1_score = scores.get(parts[0], 1.0)
-        a2_score = scores.get(parts[1], 1.0)
-        total = a1_score + a2_score
+        total = scores.get(parts[0], 1.0) + scores.get(parts[1], 1.0)
         if gene == "CYP2D6":
-            if total == 0:
-                return "Poor Metabolizer"
-            elif total < 1.0:
-                return "Intermediate Metabolizer"
-            elif total <= 2.25:
-                return "Normal Metabolizer"
-            else:
-                return "Ultrarapid Metabolizer"
+            if total == 0:      return "Poor Metabolizer"
+            elif total < 1.0:   return "Intermediate Metabolizer"
+            elif total <= 2.25: return "Normal Metabolizer"
+            else:               return "Ultrarapid Metabolizer"
         elif gene == "CYP2C9":
-            if total == 0:
-                return "Poor Metabolizer"
-            elif total < 1.5:
-                return "Intermediate Metabolizer"
-            else:
-                return "Normal Metabolizer"
+            if total == 0:      return "Poor Metabolizer"
+            elif total < 1.5:   return "Intermediate Metabolizer"
+            else:               return "Normal Metabolizer"
 
     return "Indeterminate"
 
 
 def _handle_slco1b1(variants: list[dict]) -> tuple[str, str, str]:
-    """
-    Special handler for SLCO1B1 using rs4149056 genotype.
-    Returns (diplotype, function_status, myopathy_risk).
-    """
     for v in variants:
         if v.get("rsid") == "rs4149056":
             ref = v.get("ref", "T")
@@ -261,16 +225,57 @@ def _handle_slco1b1(variants: list[dict]) -> tuple[str, str, str]:
                 geno_key = ref + alt
             else:
                 geno_key = ref + ref
-
             result = SLCO1B1_RS4149056_PHENOTYPE.get(
                 geno_key.upper(),
                 ("Indeterminate", "Unknown myopathy risk", "*?/*?")
             )
             return result[2], result[0], result[1]
-
-    # No rs4149056 → assume normal
     return "*1a/*1a", "Normal Function", "Normal myopathy risk"
 
+
+def _handle_hla_b(variants: list[dict]) -> tuple[str, str]:
+    """
+    Determine HLA-B phenotype from detected variants.
+    Returns (diplotype, phenotype) where phenotype is "Positive" or "Negative".
+
+    Checks for HLA-B*57:01 (abacavir) and HLA-B*15:02 (carbamazepine) tag SNPs.
+    Only heterozygous or homozygous_alt variants count — 0/0 are skipped by parser.
+    """
+    rsids_present = {
+        v.get("rsid")
+        for v in variants
+        if v.get("zygosity") in ("heterozygous", "homozygous_alt") and v.get("rsid")
+    }
+
+    if rsids_present & HLA_B_5701_RSIDS:
+        return "*57:01 Positive", "Positive"
+
+    if rsids_present & HLA_B_1502_RSIDS:
+        return "*15:02 Positive", "Positive"
+
+    return "Wildtype", "Negative"
+
+
+def _handle_hla_a(variants: list[dict]) -> tuple[str, str]:
+    """
+    Determine HLA-A phenotype from detected variants.
+    Returns (diplotype, phenotype) where phenotype is "Positive" or "Negative".
+    """
+    rsids_present = {
+        v.get("rsid")
+        for v in variants
+        if v.get("zygosity") in ("heterozygous", "homozygous_alt") and v.get("rsid")
+    }
+
+    if rsids_present & HLA_A_3101_RSIDS:
+        return "*31:01 Positive", "Positive"
+
+    return "Wildtype", "Negative"
+
+
+# ─────────────────────────────────────────────────────────────────────────────
+# PUBLIC API
+# ─────────────────────────────────────────────────────────────────────────────
 
 def map_phenotypes(grouped_variants: dict[str, list[dict]]) -> dict[str, dict]:
     """
@@ -278,39 +283,86 @@ def map_phenotypes(grouped_variants: dict[str, list[dict]]) -> dict[str, dict]:
 
     Parameters
     ----------
-    grouped_variants : dict gene → list of variant dicts
+    grouped_variants : dict  gene → list of variant dicts
 
     Returns
     -------
-    dict gene → {diplotype, phenotype, variants, special_notes}
+    dict  gene → {diplotype, phenotype, myopathy_risk, detected_variants, raw_variants}
     """
     results = {}
 
     for gene, variants in grouped_variants.items():
 
+        # ── SLCO1B1 — transport function model ───────────────────────────────
         if gene == "SLCO1B1":
             diplotype, phenotype, myopathy_risk = _handle_slco1b1(variants)
             results[gene] = {
-                "diplotype":      diplotype,
-                "phenotype":      phenotype,
-                "myopathy_risk":  myopathy_risk,
+                "diplotype":         diplotype,
+                "phenotype":         phenotype,
+                "myopathy_risk":     myopathy_risk,
                 "detected_variants": [v.get("rsid") for v in variants if v.get("rsid")],
-                "raw_variants":   variants,
+                "raw_variants":      variants,
             }
 
+        # ── HLA-B — presence/absence model ───────────────────────────────────
+        elif gene == "HLA-B":
+            diplotype, phenotype = _handle_hla_b(variants)
+            results[gene] = {
+                "diplotype":         diplotype,
+                "phenotype":         phenotype,
+                "myopathy_risk":     None,
+                "detected_variants": [v.get("rsid") for v in variants if v.get("rsid")],
+                "raw_variants":      variants,
+            }
+
+        # ── HLA-A — presence/absence model ───────────────────────────────────
+        elif gene == "HLA-A":
+            diplotype, phenotype = _handle_hla_a(variants)
+            results[gene] = {
+                "diplotype":         diplotype,
+                "phenotype":         phenotype,
+                "myopathy_risk":     None,
+                "detected_variants": [v.get("rsid") for v in variants if v.get("rsid")],
+                "raw_variants":      variants,
+            }
+
+        # ── All other genes — star-allele / activity-score model ──────────────
         else:
             diplotype, phenotype = _infer_diplotype_from_variants(gene, variants)
             results[gene] = {
-                "diplotype":      diplotype,
-                "phenotype":      phenotype,
-                "myopathy_risk":  None,
+                "diplotype":         diplotype,
+                "phenotype":         phenotype,
+                "myopathy_risk":     None,
                 "detected_variants": [v.get("rsid") for v in variants if v.get("rsid")],
-                "raw_variants":   variants,
+                "raw_variants":      variants,
             }
 
         logger.debug(
             "Gene %s → diplotype=%s phenotype=%s",
             gene, results[gene]["diplotype"], results[gene]["phenotype"]
         )
+
+    # ── CRITICAL: Always inject HLA-B and HLA-A defaults ─────────────────────
+    # If no HLA variants detected in VCF, mapper never creates these entries.
+    # Without defaults, pgx_rules.py gets empty gene_data → no rule matches →
+    # ABACAVIR and CARBAMAZEPINE return "Unknown".
+    # Default "Negative" → rules match → returns "Safe" correctly.
+    if "HLA-B" not in results:
+        results["HLA-B"] = {
+            "diplotype":         "Wildtype",
+            "phenotype":         "Negative",
+            "myopathy_risk":     None,
+            "detected_variants": [],
+            "raw_variants":      [],
+        }
+
+    if "HLA-A" not in results:
+        results["HLA-A"] = {
+            "diplotype":         "Wildtype",
+            "phenotype":         "Negative",
+            "myopathy_risk":     None,
+            "detected_variants": [],
+            "raw_variants":      [],
+        }
 
     return results

@@ -4,7 +4,15 @@ Maps gene phenotypes → drug-specific risk labels following
 CPIC, DPWG, and FDA pharmacogenomic labelling guidelines.
 
 Risk Labels  : Safe | Adjust Dosage | Toxic | Ineffective | Unknown
-Severity     : low | moderate | high | critical
+Severity     : none | low | moderate | high | critical
+
+CRITICAL: phenotype_match uses FULL names from phenotype_mapper.py:
+  "Poor Metabolizer" | "Intermediate Metabolizer" | "Normal Metabolizer"
+  "Rapid Metabolizer" | "Ultrarapid Metabolizer"
+  "Normal Function"  | "Decreased Function" | "Poor Function"
+  "Positive" | "Negative"  (HLA genes)
+
+Abbreviations PM/NM/IM are applied ONLY in main.py for JSON output.
 """
 
 # rift26-hackathon\ML\pgx_rules.py
@@ -21,7 +29,7 @@ class RiskResult:
     """Container for a single drug risk assessment."""
     drug:              str
     risk_label:        str           # Safe | Adjust Dosage | Toxic | Ineffective | Unknown
-    severity:          str           # low | moderate | high | critical
+    severity:          str           # none | low | moderate | high | critical
     confidence_score:  float         # 0.0 – 1.0
     primary_gene:      str
     phenotype:         str
@@ -34,18 +42,13 @@ class RiskResult:
     guideline:         str           = ""
 
 
-# ─────────────────────────────────────────────────────────────────────────────
-# DRUG RULE DEFINITIONS
-# Each entry: drug_name → list of rule dicts in priority order.
-# A rule is evaluated against the phenotype profile dict.
-# ─────────────────────────────────────────────────────────────────────────────
 DRUG_RULES: dict[str, list[dict]] = {
 
     # ── OPIOIDS ──────────────────────────────────────────────────────────────
     "CODEINE": [
         {
             "gene": "CYP2D6",
-            "phenotype_match": ["PM"],
+            "phenotype_match": ["Poor Metabolizer"],
             "risk_label": "Ineffective",
             "severity": "moderate",
             "confidence": 0.95,
@@ -55,7 +58,7 @@ DRUG_RULES: dict[str, list[dict]] = {
         },
         {
             "gene": "CYP2D6",
-            "phenotype_match": ["UM"],
+            "phenotype_match": ["Ultrarapid Metabolizer"],
             "risk_label": "Toxic",
             "severity": "critical",
             "confidence": 0.97,
@@ -65,7 +68,7 @@ DRUG_RULES: dict[str, list[dict]] = {
         },
         {
             "gene": "CYP2D6",
-            "phenotype_match": ["IM"],
+            "phenotype_match": ["Intermediate Metabolizer"],
             "risk_label": "Adjust Dosage",
             "severity": "moderate",
             "confidence": 0.80,
@@ -76,9 +79,9 @@ DRUG_RULES: dict[str, list[dict]] = {
         },
         {
             "gene": "CYP2D6",
-            "phenotype_match": ["NM"],
+            "phenotype_match": ["Normal Metabolizer"],
             "risk_label": "Safe",
-            "severity": "low",
+            "severity": "none",
             "confidence": 0.90,
             "clinical_action": "Use label-recommended dosing.",
             "guideline": "CPIC guideline for codeine and CYP2D6 (2014, updated 2022)",
@@ -88,7 +91,7 @@ DRUG_RULES: dict[str, list[dict]] = {
     "TRAMADOL": [
         {
             "gene": "CYP2D6",
-            "phenotype_match": ["UM"],
+            "phenotype_match": ["Ultrarapid Metabolizer"],
             "risk_label": "Toxic",
             "severity": "high",
             "confidence": 0.88,
@@ -98,12 +101,30 @@ DRUG_RULES: dict[str, list[dict]] = {
         },
         {
             "gene": "CYP2D6",
-            "phenotype_match": ["PM"],
+            "phenotype_match": ["Poor Metabolizer"],
             "risk_label": "Ineffective",
             "severity": "moderate",
             "confidence": 0.85,
             "clinical_action": "Reduced O-desmethyltramadol formation; reduced analgesia. Consider alternative.",
             "alternatives": ["Morphine", "Hydromorphone"],
+            "guideline": "CPIC guideline for tramadol and CYP2D6 (2021)",
+        },
+        {
+            "gene": "CYP2D6",
+            "phenotype_match": ["Intermediate Metabolizer"],
+            "risk_label": "Adjust Dosage",
+            "severity": "moderate",
+            "confidence": 0.78,
+            "clinical_action": "Mildly reduced tramadol activation. Monitor analgesic response.",
+            "guideline": "CPIC guideline for tramadol and CYP2D6 (2021)",
+        },
+        {
+            "gene": "CYP2D6",
+            "phenotype_match": ["Normal Metabolizer"],
+            "risk_label": "Safe",
+            "severity": "none",
+            "confidence": 0.88,
+            "clinical_action": "Use label-recommended dosing.",
             "guideline": "CPIC guideline for tramadol and CYP2D6 (2021)",
         },
     ],
@@ -112,7 +133,7 @@ DRUG_RULES: dict[str, list[dict]] = {
     "WARFARIN": [
         {
             "gene": "CYP2C9",
-            "phenotype_match": ["PM"],
+            "phenotype_match": ["Poor Metabolizer"],
             "risk_label": "Adjust Dosage",
             "severity": "high",
             "confidence": 0.92,
@@ -123,7 +144,7 @@ DRUG_RULES: dict[str, list[dict]] = {
         },
         {
             "gene": "CYP2C9",
-            "phenotype_match": ["IM"],
+            "phenotype_match": ["Intermediate Metabolizer"],
             "risk_label": "Adjust Dosage",
             "severity": "moderate",
             "confidence": 0.87,
@@ -134,9 +155,9 @@ DRUG_RULES: dict[str, list[dict]] = {
         },
         {
             "gene": "CYP2C9",
-            "phenotype_match": ["NM"],
+            "phenotype_match": ["Normal Metabolizer"],
             "risk_label": "Safe",
-            "severity": "low",
+            "severity": "none",
             "confidence": 0.85,
             "clinical_action": "Use standard label dosing. Routine INR monitoring.",
             "guideline": "CPIC guideline for warfarin, CYP2C9, VKORC1, CYP4F2 (2017)",
@@ -146,12 +167,31 @@ DRUG_RULES: dict[str, list[dict]] = {
     "PHENYTOIN": [
         {
             "gene": "CYP2C9",
-            "phenotype_match": ["PM"],
+            "phenotype_match": ["Poor Metabolizer"],
             "risk_label": "Toxic",
             "severity": "high",
             "confidence": 0.90,
             "clinical_action": "Severely reduced phenytoin metabolism. High risk of toxicity at standard doses. Reduce dose by 25–50%.",
             "dose_adjustment": "Reduce by 25–50%, use lower maintenance dose. Monitor serum levels closely.",
+            "guideline": "CPIC guideline for phenytoin and CYP2C9, HLA-B (2020)",
+        },
+        {
+            "gene": "CYP2C9",
+            "phenotype_match": ["Intermediate Metabolizer"],
+            "risk_label": "Adjust Dosage",
+            "severity": "moderate",
+            "confidence": 0.82,
+            "clinical_action": "Reduced phenytoin metabolism. Use 75% of standard dose with serum level monitoring.",
+            "dose_adjustment": "Reduce dose by 25%.",
+            "guideline": "CPIC guideline for phenytoin and CYP2C9, HLA-B (2020)",
+        },
+        {
+            "gene": "CYP2C9",
+            "phenotype_match": ["Normal Metabolizer"],
+            "risk_label": "Safe",
+            "severity": "none",
+            "confidence": 0.87,
+            "clinical_action": "Standard dosing. Routine serum level monitoring.",
             "guideline": "CPIC guideline for phenytoin and CYP2C9, HLA-B (2020)",
         },
     ],
@@ -160,17 +200,17 @@ DRUG_RULES: dict[str, list[dict]] = {
     "CLOPIDOGREL": [
         {
             "gene": "CYP2C19",
-            "phenotype_match": ["PM"],
+            "phenotype_match": ["Poor Metabolizer"],
             "risk_label": "Ineffective",
             "severity": "high",
             "confidence": 0.95,
-            "clinical_action": "Clopidogrel will not be converted to active thiosuflate metabolite. Use prasugrel or ticagrelor instead.",
+            "clinical_action": "Clopidogrel will not be converted to active thiosulfate metabolite. Use prasugrel or ticagrelor instead.",
             "alternatives": ["Prasugrel", "Ticagrelor"],
             "guideline": "CPIC guideline for clopidogrel and CYP2C19 (2013, updated 2022)",
         },
         {
             "gene": "CYP2C19",
-            "phenotype_match": ["IM"],
+            "phenotype_match": ["Intermediate Metabolizer"],
             "risk_label": "Adjust Dosage",
             "severity": "moderate",
             "confidence": 0.78,
@@ -180,18 +220,18 @@ DRUG_RULES: dict[str, list[dict]] = {
         },
         {
             "gene": "CYP2C19",
-            "phenotype_match": ["RM", "UM"],
+            "phenotype_match": ["Rapid Metabolizer", "Ultrarapid Metabolizer"],
             "risk_label": "Safe",
-            "severity": "low",
+            "severity": "none",
             "confidence": 0.88,
             "clinical_action": "Enhanced clopidogrel activation. Use label-recommended dosing.",
             "guideline": "CPIC guideline for clopidogrel and CYP2C19 (2013, updated 2022)",
         },
         {
             "gene": "CYP2C19",
-            "phenotype_match": ["NM"],
+            "phenotype_match": ["Normal Metabolizer"],
             "risk_label": "Safe",
-            "severity": "low",
+            "severity": "none",
             "confidence": 0.90,
             "clinical_action": "Standard clopidogrel dosing recommended.",
             "guideline": "CPIC guideline for clopidogrel and CYP2C19 (2013, updated 2022)",
@@ -203,7 +243,6 @@ DRUG_RULES: dict[str, list[dict]] = {
         {
             "gene": "SLCO1B1",
             "phenotype_match": ["Poor Function", "Decreased Function"],
-            "phenotype_contains": "risk",
             "risk_label": "Toxic",
             "severity": "high",
             "confidence": 0.92,
@@ -217,7 +256,7 @@ DRUG_RULES: dict[str, list[dict]] = {
             "gene": "SLCO1B1",
             "phenotype_match": ["Normal Function"],
             "risk_label": "Safe",
-            "severity": "low",
+            "severity": "none",
             "confidence": 0.88,
             "clinical_action": "Standard simvastatin dosing. Routine monitoring.",
             "guideline": "CPIC guideline for statins and SLCO1B1, ABCG2, CYP2C9 (2022)",
@@ -235,13 +274,32 @@ DRUG_RULES: dict[str, list[dict]] = {
             "dose_adjustment": "Consider dose reduction. Max 40 mg/day.",
             "guideline": "CPIC guideline for statins and SLCO1B1 (2022)",
         },
+        {
+            "gene": "SLCO1B1",
+            "phenotype_match": ["Decreased Function"],
+            "risk_label": "Adjust Dosage",
+            "severity": "low",
+            "confidence": 0.72,
+            "clinical_action": "Mildly increased atorvastatin exposure. Use standard or reduced dose with myopathy monitoring.",
+            "monitoring": "Monitor for muscle symptoms.",
+            "guideline": "CPIC guideline for statins and SLCO1B1 (2022)",
+        },
+        {
+            "gene": "SLCO1B1",
+            "phenotype_match": ["Normal Function"],
+            "risk_label": "Safe",
+            "severity": "none",
+            "confidence": 0.88,
+            "clinical_action": "Standard atorvastatin dosing.",
+            "guideline": "CPIC guideline for statins and SLCO1B1 (2022)",
+        },
     ],
 
     # ── THIOPURINES ───────────────────────────────────────────────────────────
     "AZATHIOPRINE": [
         {
             "gene": "TPMT",
-            "phenotype_match": ["PM"],
+            "phenotype_match": ["Poor Metabolizer"],
             "risk_label": "Toxic",
             "severity": "critical",
             "confidence": 0.97,
@@ -253,7 +311,7 @@ DRUG_RULES: dict[str, list[dict]] = {
         },
         {
             "gene": "TPMT",
-            "phenotype_match": ["IM"],
+            "phenotype_match": ["Intermediate Metabolizer"],
             "risk_label": "Adjust Dosage",
             "severity": "moderate",
             "confidence": 0.88,
@@ -264,9 +322,9 @@ DRUG_RULES: dict[str, list[dict]] = {
         },
         {
             "gene": "TPMT",
-            "phenotype_match": ["NM"],
+            "phenotype_match": ["Normal Metabolizer"],
             "risk_label": "Safe",
-            "severity": "low",
+            "severity": "none",
             "confidence": 0.88,
             "clinical_action": "Standard dosing. Routine CBC monitoring per label.",
             "guideline": "CPIC guideline for thiopurines and TPMT, NUDT15 (2018, updated 2021)",
@@ -276,7 +334,7 @@ DRUG_RULES: dict[str, list[dict]] = {
     "MERCAPTOPURINE": [
         {
             "gene": "TPMT",
-            "phenotype_match": ["PM"],
+            "phenotype_match": ["Poor Metabolizer"],
             "risk_label": "Toxic",
             "severity": "critical",
             "confidence": 0.97,
@@ -286,7 +344,7 @@ DRUG_RULES: dict[str, list[dict]] = {
         },
         {
             "gene": "TPMT",
-            "phenotype_match": ["IM"],
+            "phenotype_match": ["Intermediate Metabolizer"],
             "risk_label": "Adjust Dosage",
             "severity": "high",
             "confidence": 0.90,
@@ -294,17 +352,45 @@ DRUG_RULES: dict[str, list[dict]] = {
             "dose_adjustment": "Reduce dose by 30–70%.",
             "guideline": "CPIC guideline for thiopurines and TPMT, NUDT15 (2018, updated 2021)",
         },
+        {
+            "gene": "TPMT",
+            "phenotype_match": ["Normal Metabolizer"],
+            "risk_label": "Safe",
+            "severity": "none",
+            "confidence": 0.88,
+            "clinical_action": "Standard dosing.",
+            "guideline": "CPIC guideline for thiopurines and TPMT, NUDT15 (2018, updated 2021)",
+        },
     ],
 
     "THIOGUANINE": [
         {
             "gene": "TPMT",
-            "phenotype_match": ["PM"],
+            "phenotype_match": ["Poor Metabolizer"],
             "risk_label": "Toxic",
             "severity": "critical",
             "confidence": 0.95,
             "clinical_action": "Reduce dose to 10% with weekly CBC monitoring or use non-thiopurine alternative.",
             "alternatives": ["Cytarabine"],
+            "guideline": "CPIC guideline for thiopurines and TPMT, NUDT15 (2018, updated 2021)",
+        },
+        {
+            "gene": "TPMT",
+            "phenotype_match": ["Intermediate Metabolizer"],
+            "risk_label": "Adjust Dosage",
+            "severity": "moderate",
+            "confidence": 0.85,
+            "clinical_action": "Reduce dose by 30–50% with CBC monitoring.",
+            "dose_adjustment": "Reduce dose by 30–50%.",
+            "guideline": "CPIC guideline for thiopurines and TPMT, NUDT15 (2018, updated 2021)",
+        },
+        {
+            "gene": "TPMT",
+            "phenotype_match": ["Normal Metabolizer"],
+            "risk_label": "Safe",
+            "severity": "none",
+            "confidence": 0.88,
+            "clinical_action": "Standard dosing.",
             "guideline": "CPIC guideline for thiopurines and TPMT, NUDT15 (2018, updated 2021)",
         },
     ],
@@ -313,7 +399,7 @@ DRUG_RULES: dict[str, list[dict]] = {
     "FLUOROURACIL": [
         {
             "gene": "DPYD",
-            "phenotype_match": ["PM"],
+            "phenotype_match": ["Poor Metabolizer"],
             "risk_label": "Toxic",
             "severity": "critical",
             "confidence": 0.97,
@@ -323,7 +409,7 @@ DRUG_RULES: dict[str, list[dict]] = {
         },
         {
             "gene": "DPYD",
-            "phenotype_match": ["IM"],
+            "phenotype_match": ["Intermediate Metabolizer"],
             "risk_label": "Adjust Dosage",
             "severity": "high",
             "confidence": 0.90,
@@ -334,9 +420,9 @@ DRUG_RULES: dict[str, list[dict]] = {
         },
         {
             "gene": "DPYD",
-            "phenotype_match": ["NM"],
+            "phenotype_match": ["Normal Metabolizer"],
             "risk_label": "Safe",
-            "severity": "low",
+            "severity": "none",
             "confidence": 0.88,
             "clinical_action": "Standard dosing per oncology protocol.",
             "guideline": "CPIC guideline for fluoropyrimidines and DPYD (2017, updated 2022)",
@@ -346,7 +432,7 @@ DRUG_RULES: dict[str, list[dict]] = {
     "CAPECITABINE": [
         {
             "gene": "DPYD",
-            "phenotype_match": ["PM"],
+            "phenotype_match": ["Poor Metabolizer"],
             "risk_label": "Toxic",
             "severity": "critical",
             "confidence": 0.96,
@@ -355,12 +441,21 @@ DRUG_RULES: dict[str, list[dict]] = {
         },
         {
             "gene": "DPYD",
-            "phenotype_match": ["IM"],
+            "phenotype_match": ["Intermediate Metabolizer"],
             "risk_label": "Adjust Dosage",
             "severity": "high",
             "confidence": 0.90,
             "clinical_action": "Reduce starting dose to 50%. Monitor for fluoropyrimidine toxicity.",
             "dose_adjustment": "Start at 50% of standard dose.",
+            "guideline": "CPIC guideline for fluoropyrimidines and DPYD (2017, updated 2022)",
+        },
+        {
+            "gene": "DPYD",
+            "phenotype_match": ["Normal Metabolizer"],
+            "risk_label": "Safe",
+            "severity": "none",
+            "confidence": 0.88,
+            "clinical_action": "Standard dosing.",
             "guideline": "CPIC guideline for fluoropyrimidines and DPYD (2017, updated 2022)",
         },
     ],
@@ -369,18 +464,18 @@ DRUG_RULES: dict[str, list[dict]] = {
     "AMITRIPTYLINE": [
         {
             "gene": "CYP2D6",
-            "phenotype_match": ["PM"],
+            "phenotype_match": ["Poor Metabolizer"],
             "risk_label": "Toxic",
             "severity": "high",
             "confidence": 0.88,
-            "clinical_action": "Reduced amitriptyline metabolism. High plasma levels possible. Reduce dose by 50% or use alternative (nortriptyline at reduced dose).",
+            "clinical_action": "Reduced amitriptyline metabolism. High plasma levels possible. Reduce dose by 50% or use alternative.",
             "dose_adjustment": "Reduce dose to 50% of standard.",
             "alternatives": ["SSRIs", "SNRIs"],
             "guideline": "CPIC guideline for tricyclic antidepressants and CYP2D6, CYP2C19 (2016)",
         },
         {
             "gene": "CYP2C19",
-            "phenotype_match": ["PM"],
+            "phenotype_match": ["Poor Metabolizer"],
             "risk_label": "Adjust Dosage",
             "severity": "moderate",
             "confidence": 0.80,
@@ -388,12 +483,31 @@ DRUG_RULES: dict[str, list[dict]] = {
             "dose_adjustment": "Reduce initial dose by 50%.",
             "guideline": "CPIC guideline for tricyclic antidepressants and CYP2D6, CYP2C19 (2016)",
         },
+        {
+            "gene": "CYP2D6",
+            "phenotype_match": ["Intermediate Metabolizer"],
+            "risk_label": "Adjust Dosage",
+            "severity": "moderate",
+            "confidence": 0.75,
+            "clinical_action": "Mildly reduced amitriptyline metabolism. Use 75% of standard dose with plasma level monitoring.",
+            "dose_adjustment": "Reduce dose by 25%.",
+            "guideline": "CPIC guideline for tricyclic antidepressants and CYP2D6, CYP2C19 (2016)",
+        },
+        {
+            "gene": "CYP2D6",
+            "phenotype_match": ["Normal Metabolizer"],
+            "risk_label": "Safe",
+            "severity": "none",
+            "confidence": 0.87,
+            "clinical_action": "Standard dosing.",
+            "guideline": "CPIC guideline for tricyclic antidepressants and CYP2D6, CYP2C19 (2016)",
+        },
     ],
 
     "CITALOPRAM": [
         {
             "gene": "CYP2C19",
-            "phenotype_match": ["PM"],
+            "phenotype_match": ["Poor Metabolizer"],
             "risk_label": "Adjust Dosage",
             "severity": "moderate",
             "confidence": 0.85,
@@ -404,7 +518,7 @@ DRUG_RULES: dict[str, list[dict]] = {
         },
         {
             "gene": "CYP2C19",
-            "phenotype_match": ["UM"],
+            "phenotype_match": ["Ultrarapid Metabolizer"],
             "risk_label": "Ineffective",
             "severity": "moderate",
             "confidence": 0.75,
@@ -412,36 +526,99 @@ DRUG_RULES: dict[str, list[dict]] = {
             "alternatives": ["Sertraline", "Mirtazapine"],
             "guideline": "CPIC guideline for SSRIs and CYP2C19 (2015)",
         },
+        {
+            "gene": "CYP2C19",
+            "phenotype_match": ["Normal Metabolizer"],
+            "risk_label": "Safe",
+            "severity": "none",
+            "confidence": 0.88,
+            "clinical_action": "Standard dosing.",
+            "guideline": "CPIC guideline for SSRIs and CYP2C19 (2015)",
+        },
+        {
+            "gene": "CYP2C19",
+            "phenotype_match": ["Rapid Metabolizer"],
+            "risk_label": "Safe",
+            "severity": "none",
+            "confidence": 0.82,
+            "clinical_action": "Standard dosing. Monitor for response.",
+            "guideline": "CPIC guideline for SSRIs and CYP2C19 (2015)",
+        },
+    ],
+
+    # ── HLA-B DRUGS ───────────────────────────────────────────────────────────
+    "ABACAVIR": [
+        {
+            "gene": "HLA-B",
+            "phenotype_match": ["Positive", "*57:01 Positive"],
+            "risk_label": "Toxic",
+            "severity": "critical",
+            "confidence": 0.99,
+            "clinical_action": "CONTRAINDICATED. HLA-B*57:01 positive — high risk of fatal abacavir hypersensitivity reaction (HSR). FDA boxed warning. Do not prescribe abacavir.",
+            "alternatives": ["Tenofovir alafenamide (TAF)", "Tenofovir disoproxil fumarate (TDF)"],
+            "guideline": "CPIC guideline for abacavir and HLA-B (2014)",
+        },
+        {
+            "gene": "HLA-B",
+            "phenotype_match": ["Negative", "*57:01 Negative", "*57:01 Negative / *15:02 Negative"],
+            "risk_label": "Safe",
+            "severity": "none",
+            "confidence": 0.95,
+            "clinical_action": "HLA-B*57:01 negative. Abacavir hypersensitivity reaction risk is low. Use standard dosing with routine monitoring.",
+            "guideline": "CPIC guideline for abacavir and HLA-B (2014)",
+        },
+    ],
+
+    "CARBAMAZEPINE": [
+        {
+            "gene": "HLA-B",
+            "phenotype_match": ["Positive", "*15:02 Positive"],
+            "risk_label": "Toxic",
+            "severity": "critical",
+            "confidence": 0.98,
+            "clinical_action": "CONTRAINDICATED in HLA-B*15:02 carriers. High risk of Stevens-Johnson syndrome (SJS) and toxic epidermal necrolysis (TEN). Avoid carbamazepine.",
+            "alternatives": ["Valproate", "Levetiracetam", "Lamotrigine (with caution)"],
+            "guideline": "CPIC guideline for carbamazepine and HLA-B, HLA-A (2017)",
+        },
+        {
+            "gene": "HLA-B",
+            "phenotype_match": ["Negative", "*15:02 Negative", "*57:01 Negative / *15:02 Negative"],
+            "risk_label": "Safe",
+            "severity": "none",
+            "confidence": 0.88,
+            "clinical_action": "HLA-B*15:02 negative. Standard carbamazepine dosing. Monitor for common side effects including dizziness and drowsiness.",
+            "guideline": "CPIC guideline for carbamazepine and HLA-B, HLA-A (2017)",
+        },
     ],
 }
 
 
 # ─────────────────────────────────────────────────────────────────────────────
-# GENE PRIORITY ORDER — which gene to evaluate first for a given drug
+# GENE PRIORITY ORDER
 # ─────────────────────────────────────────────────────────────────────────────
 DRUG_PRIMARY_GENE: dict[str, str] = {
-    "CODEINE":       "CYP2D6",
-    "TRAMADOL":      "CYP2D6",
-    "WARFARIN":      "CYP2C9",
-    "PHENYTOIN":     "CYP2C9",
-    "CLOPIDOGREL":   "CYP2C19",
-    "SIMVASTATIN":   "SLCO1B1",
-    "ATORVASTATIN":  "SLCO1B1",
-    "AZATHIOPRINE":  "TPMT",
-    "MERCAPTOPURINE":"TPMT",
-    "THIOGUANINE":   "TPMT",
-    "FLUOROURACIL":  "DPYD",
-    "CAPECITABINE":  "DPYD",
-    "AMITRIPTYLINE": "CYP2D6",
-    "CITALOPRAM":    "CYP2C19",
+    "CODEINE":        "CYP2D6",
+    "TRAMADOL":       "CYP2D6",
+    "WARFARIN":       "CYP2C9",
+    "PHENYTOIN":      "CYP2C9",
+    "CLOPIDOGREL":    "CYP2C19",
+    "SIMVASTATIN":    "SLCO1B1",
+    "ATORVASTATIN":   "SLCO1B1",
+    "AZATHIOPRINE":   "TPMT",
+    "MERCAPTOPURINE": "TPMT",
+    "THIOGUANINE":    "TPMT",
+    "FLUOROURACIL":   "DPYD",
+    "CAPECITABINE":   "DPYD",
+    "AMITRIPTYLINE":  "CYP2D6",
+    "CITALOPRAM":     "CYP2C19",
+    "ABACAVIR":       "HLA-B",
+    "CARBAMAZEPINE":  "HLA-B",
 }
+
+VALID_SEVERITIES = {"none", "low", "moderate", "high", "critical"}
 
 
 def _phenotype_matches(phenotype: str, match_list: list[str]) -> bool:
-    """
-    Check if the patient phenotype matches a rule's phenotype_match list.
-    Also does partial substring matching for SLCO1B1 risk descriptions.
-    """
     phenotype_lower = phenotype.lower()
     for m in match_list:
         if m.lower() in phenotype_lower or phenotype_lower in m.lower():
@@ -453,28 +630,11 @@ def assess_drug_risk(
     drug: str,
     phenotype_profile: dict[str, dict]
 ) -> RiskResult:
-    """
-    Main risk assessment function.
-
-    Parameters
-    ----------
-    drug : str
-        Drug name (case-insensitive).
-    phenotype_profile : dict
-        Output from phenotype_mapper.map_phenotypes()
-        Keys are gene names; values have .diplotype, .phenotype, etc.
-
-    Returns
-    -------
-    RiskResult dataclass instance.
-    """
     drug_upper = drug.upper().strip()
     rules = DRUG_RULES.get(drug_upper)
-
     primary_gene = DRUG_PRIMARY_GENE.get(drug_upper, "Unknown")
 
     if not rules:
-        # Drug not in our database
         gene_data = phenotype_profile.get(primary_gene, {})
         return RiskResult(
             drug=drug_upper,
@@ -489,13 +649,11 @@ def assess_drug_risk(
             guideline="No CPIC/DPWG guideline available",
         )
 
-    # Evaluate rules in priority order
     for rule in rules:
         gene = rule["gene"]
         gene_data = phenotype_profile.get(gene, {})
         patient_phenotype = gene_data.get("phenotype", "")
 
-        # For SLCO1B1 also check myopathy_risk
         if gene == "SLCO1B1":
             patient_phenotype = (
                 gene_data.get("phenotype", "") + " " +
@@ -503,17 +661,20 @@ def assess_drug_risk(
             ).strip()
 
         if not patient_phenotype:
-            continue  # No data for this gene, try next rule
+            continue
 
         if _phenotype_matches(patient_phenotype, rule.get("phenotype_match", [])):
+            severity = rule.get("severity", "low")
+            if severity not in VALID_SEVERITIES:
+                severity = "low"
             logger.info(
-                "Drug %s matched rule: gene=%s phenotype=%s → %s",
-                drug_upper, gene, patient_phenotype, rule["risk_label"]
+                "Drug %s matched: gene=%s phenotype=%s → %s (severity=%s)",
+                drug_upper, gene, patient_phenotype, rule["risk_label"], severity
             )
             return RiskResult(
                 drug=drug_upper,
                 risk_label=rule["risk_label"],
-                severity=rule["severity"],
+                severity=severity,
                 confidence_score=rule["confidence"],
                 primary_gene=gene,
                 phenotype=patient_phenotype.strip(),
@@ -526,15 +687,15 @@ def assess_drug_risk(
                 guideline=rule.get("guideline", ""),
             )
 
-    # No rule matched → Safe with low confidence
+    # No rule matched → Safe fallback
     gene_data = phenotype_profile.get(primary_gene, {})
     return RiskResult(
         drug=drug_upper,
         risk_label="Safe",
-        severity="low",
+        severity="none",
         confidence_score=0.70,
         primary_gene=primary_gene,
-        phenotype=gene_data.get("phenotype", "NM"),
+        phenotype=gene_data.get("phenotype", "Normal Metabolizer"),
         diplotype=gene_data.get("diplotype", "*1/*1"),
         detected_variants=gene_data.get("detected_variants", []),
         clinical_action="No pharmacogenomic risk factors identified. Use standard prescribing information.",
@@ -546,5 +707,4 @@ def assess_multiple_drugs(
     drugs: list[str],
     phenotype_profile: dict[str, dict]
 ) -> list[RiskResult]:
-    """Assess risk for a list of drugs against a patient's phenotype profile."""
     return [assess_drug_risk(drug, phenotype_profile) for drug in drugs]
