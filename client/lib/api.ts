@@ -31,7 +31,7 @@ export interface DetectedVariant {
 export interface RiskAssessment {
   risk_label: "Safe" | "Adjust Dosage" | "Toxic" | "Ineffective" | "Unknown";
   confidence_score: number;
-  severity: "Low" | "Moderate" | "High" | "Critical";
+  severity: "none" | "low" | "moderate" | "high" | "critical"; // ✅ matches backend
 }
 
 export interface PharmacogenomicProfile {
