@@ -3,10 +3,10 @@ export const mockDrugs = [
   { id: "clopidogrel", name: "Clopidogrel", category: "Antiplatelet" },
   { id: "codeine", name: "Codeine", category: "Analgesic" },
   { id: "simvastatin", name: "Simvastatin", category: "Statin" },
-  { id: "tamoxifen", name: "Tamoxifen", category: "Antineoplastic" },
+  { id: "Azathioprine", name: "Azathioprine", category: "Purine analogues" },
   { id: "abacavir", name: "Abacavir", category: "Antiviral" },
   { id: "carbamazepine", name: "Carbamazepine", category: "Anticonvulsant" },
-  { id: "fluorouracil", name: "5-Fluorouracil", category: "Antineoplastic" },
+  { id: "fluorouracil", name: "Fluorouracil", category: "Antineoplastic" },
 ];
 
 export const mockVariants = [
