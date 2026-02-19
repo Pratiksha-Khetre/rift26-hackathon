@@ -6,12 +6,12 @@
     "risk_assessment": {
       "risk_label": "Adjust Dosage",
       "confidence_score": 0.8,
-      "severity": "Moderate"
+      "severity": "moderate"
     },
     "pharmacogenomic_profile": {
       "primary_gene": "CYP2D6",
       "diplotype": "*1/*4",
-      "phenotype": "Intermediate Metabolizer",
+      "phenotype": "IM",
       "detected_variants": [
         {
           "rsid": "rs3892097",
@@ -50,12 +50,12 @@
     "risk_assessment": {
       "risk_label": "Ineffective",
       "confidence_score": 0.95,
-      "severity": "High"
+      "severity": "high"
     },
     "pharmacogenomic_profile": {
       "primary_gene": "CYP2C19",
       "diplotype": "*2/*2",
-      "phenotype": "Poor Metabolizer",
+      "phenotype": "PM",
       "detected_variants": [
         {
           "rsid": "rs4244285",
@@ -93,12 +93,12 @@
     "risk_assessment": {
       "risk_label": "Adjust Dosage",
       "confidence_score": 0.87,
-      "severity": "Moderate"
+      "severity": "moderate"
     },
     "pharmacogenomic_profile": {
       "primary_gene": "CYP2C9",
       "diplotype": "*1/*2",
-      "phenotype": "Intermediate Metabolizer",
+      "phenotype": "IM",
       "detected_variants": [
         {
           "rsid": "rs1799853",
@@ -138,12 +138,12 @@
     "risk_assessment": {
       "risk_label": "Toxic",
       "confidence_score": 0.92,
-      "severity": "High"
+      "severity": "high"
     },
     "pharmacogenomic_profile": {
       "primary_gene": "SLCO1B1",
       "diplotype": "*5/*5",
-      "phenotype": "Poor Function High myopathy risk",
+      "phenotype": "NM",
       "detected_variants": [
         {
           "rsid": "rs4149056",
@@ -187,12 +187,12 @@
     "risk_assessment": {
       "risk_label": "Adjust Dosage",
       "confidence_score": 0.88,
-      "severity": "Moderate"
+      "severity": "moderate"
     },
     "pharmacogenomic_profile": {
       "primary_gene": "TPMT",
       "diplotype": "*1/*3C",
-      "phenotype": "Intermediate Metabolizer",
+      "phenotype": "IM",
       "detected_variants": [
         {
           "rsid": "rs1142345",
@@ -232,12 +232,12 @@
     "risk_assessment": {
       "risk_label": "Adjust Dosage",
       "confidence_score": 0.9,
-      "severity": "High"
+      "severity": "high"
     },
     "pharmacogenomic_profile": {
       "primary_gene": "DPYD",
       "diplotype": "*1/*2A",
-      "phenotype": "Intermediate Metabolizer",
+      "phenotype": "IM",
       "detected_variants": [
         {
           "rsid": "rs3918290",
